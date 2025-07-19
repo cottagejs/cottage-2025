@@ -1,0 +1,30 @@
+{
+  "name": "cottage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cottage.config.js",
+  "bin": {
+    "cottage": "bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "s": "node server.js",
+    "dev": "node ./bin/cli.js dev",
+    "build": "node ./bin/cli.js build"
+  },
+  "author": "hastersun",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "commander": "^14.0.0",
+    "fs-extra": "^11.3.0",
+    "htmlparser2": "^10.0.0",
+    "vite": "^6.3.5",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
+  }
+}
