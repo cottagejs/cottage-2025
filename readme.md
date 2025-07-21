@@ -2,43 +2,32 @@
 Cottage.js is a content-driven, component-based enterprise JS framework inspired by Astro.js, designed for modern web apps and content sites. It supports static and dynamic hybrid rendering, high extensibility, and a plugin ecosystem.
 
 ## Features
-- Content-driven, supports Markdown/MDX and more
-- Component-based development, custom UI components
-- Static & dynamic hybrid rendering for high-performance pages
-- Plugin system for easy framework extension
-- Configuration-driven, main config entry: `cottage.config.js`
-- Supports multiple build tools (default Webpack, Turbopack planned)
-- Lightweight, no forced frontend framework dependency, easy integration
+**AI 支持：可通过插件集成 [LangChain](https://js.langchain.com/) 与 [IntelliNode](https://intellinode.dev/) 实现智能对话与现代 API 服务**
 
 ## Quick Start
-1. Install dependencies
+1. 安装依赖
    ```sh
-   npm install
+   npm i
    ```
-2. Start development server
+2. 启动开发服务器
    ```sh
    npm run dev
-   # or npx cottage dev
+   # 或 npx cottage dev
    ```
-3. Build static site
+3. 构建静态站点
    ```sh
    npm run build
-   # or npx cottage build
+   # 或 npx cottage build
    ```
 
 ## Directory Structure
-- `cottage.config.js`: Main configuration file
-- `server.js`: Node.js server entry
-- `webpack.config.js`: Build configuration
-- `src/app.js`: Application main entry
-- `src/components/`: Custom components directory
-- `src/pages/`: Pages directory, supports content-driven rendering
-- `src/content/`: Content resources (e.g. Markdown/MDX)
 
 ## Future Roadmap
-- 支持 Turbopack 构建系统
-- 丰富插件生态，支持内容源、渲染器、UI 组件等扩展
-- 持续优化企业级开发体验
+## AI Support
+Cottage.js 支持通过插件集成主流 AI 能力：
+- **LangChain**：构建智能对话、AI 应用
+- **IntelliNode**：现代 Node.js API 服务，支持高效路由与中间件
+详见 `doc/docs-plugins-langchain.md` 和 `doc/docs-plugins-intellinode.md`
 
 ## 社区与支持
 - 参与讨论：[GitHub Discussions](https://github.com/Hastersun/cottage/discussions)

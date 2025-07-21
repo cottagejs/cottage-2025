@@ -46,6 +46,13 @@ export default defineConfig({
     // isSSG && require('vite-plugin-ssg')(),
     // 自动化部署插件示例：
     // require('vite-plugin-deploy')({ provider: 'vercel' }),
+    vue(),
+    react({
+      jsxRuntime: 'automatic',
+      babel: {
+        presets: ['@babel/preset-react'],
+      },
+    })
   ],
   server: {
     port: 3000,

@@ -24,6 +24,12 @@
     "webpack-dev-server": "^4.11.1"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "vue": "^3.5.17",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
   }
