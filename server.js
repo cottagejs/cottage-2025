@@ -79,7 +79,7 @@ app.use((req, res, next) => {
 });
 
 // Page rendering
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   try {
     const match = routes.find(r => r.route === req.path || r.route === req.path + '/');
     let html = '';
@@ -88,11 +88,19 @@ app.get('*', (req, res) => {
     if (match) {
       if (match.type === 'js') {
         try {
-          // Always clear require cache for the matched file
           delete require.cache[require.resolve(match.file)];
           const page = require(match.file);
+          // SSR: 支持 getServerSideProps
+          let props = {};
+          if (config.mode === 'ssr' && typeof page.getServerSideProps === 'function') {
+            props = await page.getServerSideProps({ req, res });
+          }
+          // SSG: 支持 getStaticProps
+          if (config.mode === 'ssg' && typeof page.getStaticProps === 'function') {
+            props = await page.getStaticProps();
+          }
           if (typeof page.render === 'function') {
-            html = page.render();
+            html = page.render(props);
           }
         } catch (err) {
           console.error(`[error] JS page render failed: ${match.file}`, err);
