@@ -1,7 +1,7 @@
-'use strict';
-const os = require('os');
-const fs = require('fs');
-const isDocker = require('is-docker');
+import process from 'node:process';
+import os from 'node:os';
+import fs from 'node:fs';
+import isInsideContainer from 'is-inside-container';
 
 const isWsl = () => {
 	if (process.platform !== 'linux') {
@@ -9,7 +9,7 @@ const isWsl = () => {
 	}
 
 	if (os.release().toLowerCase().includes('microsoft')) {
-		if (isDocker()) {
+		if (isInsideContainer()) {
 			return false;
 		}
 
@@ -17,15 +17,11 @@ const isWsl = () => {
 	}
 
 	try {
-		return fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft') ?
-			!isDocker() : false;
-	} catch (_) {
+		return fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft')
+			? !isInsideContainer() : false;
+	} catch {
 		return false;
 	}
 };
 
-if (process.env.__IS_WSL_TEST__) {
-	module.exports = isWsl;
-} else {
-	module.exports = isWsl();
-}
+export default process.env.__IS_WSL_TEST__ ? isWsl : isWsl();

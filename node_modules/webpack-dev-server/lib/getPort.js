@@ -46,7 +46,7 @@ const checkAvailablePort = (basePort, host) =>
     server.on("error", reject);
 
     server.listen(basePort, host, () => {
-      // Next line should return AdressInfo because we're calling it after listen() and before close()
+      // Next line should return AddressInfo because we're calling it after listen() and before close()
       const { port } = /** @type {import("net").AddressInfo} */ (
         server.address()
       );
@@ -75,7 +75,7 @@ const getAvailablePort = async (port, hosts) => {
       /* We throw an error only if the interface exists */
       if (
         !nonExistentInterfaceErrors.has(
-          /** @type {NodeJS.ErrnoException} */ (error).code
+          /** @type {NodeJS.ErrnoException} */ (error).code,
         )
       ) {
         throw error;
@@ -118,7 +118,7 @@ async function getPorts(basePort, host) {
       /* Try next port if port is busy; throw for any other error */
       if (
         !portUnavailableErrors.has(
-          /** @type {NodeJS.ErrnoException} */ (error).code
+          /** @type {NodeJS.ErrnoException} */ (error).code,
         )
       ) {
         throw error;

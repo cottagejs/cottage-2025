@@ -17,6 +17,7 @@ var maxRetries = 10;
 // It is mutable to enforce singleton
 // eslint-disable-next-line import/no-mutable-exports
 export var client = null;
+var timeout;
 
 /**
  * @param {string} url
@@ -27,6 +28,9 @@ var socket = function initSocket(url, handlers, reconnect) {
   client = new Client(url);
   client.onOpen(function () {
     retries = 0;
+    if (timeout) {
+      clearTimeout(timeout);
+    }
     if (typeof reconnect !== "undefined") {
       maxRetries = reconnect;
     }
@@ -47,7 +51,7 @@ var socket = function initSocket(url, handlers, reconnect) {
       var retryInMs = 1000 * Math.pow(2, retries) + Math.random() * 100;
       retries += 1;
       log.info("Trying to reconnect...");
-      setTimeout(function () {
+      timeout = setTimeout(function () {
         socket(url, handlers, reconnect);
       }, retryInMs);
     }

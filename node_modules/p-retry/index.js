@@ -1,14 +1,7 @@
-'use strict';
-const retry = require('retry');
+import retry from 'retry';
+import isNetworkError from 'is-network-error';
 
-const networkErrorMsgs = [
-	'Failed to fetch', // Chrome
-	'NetworkError when attempting to fetch resource.', // Firefox
-	'The Internet connection appears to be offline.', // Safari
-	'Network request failed' // `cross-fetch`
-];
-
-class AbortError extends Error {
+export class AbortError extends Error {
 	constructor(message) {
 		super();
 
@@ -34,52 +27,66 @@ const decorateErrorWithCounts = (error, attemptNumber, options) => {
 	return error;
 };
 
-const isNetworkError = errorMessage => networkErrorMsgs.includes(errorMessage);
+export default async function pRetry(input, options) {
+	return new Promise((resolve, reject) => {
+		options = {...options};
+		options.onFailedAttempt ??= () => {};
+		options.shouldRetry ??= () => true;
+		options.retries ??= 10;
 
-const pRetry = (input, options) => new Promise((resolve, reject) => {
-	options = {
-		onFailedAttempt: () => {},
-		retries: 10,
-		...options
-	};
+		const operation = retry.operation(options);
 
-	const operation = retry.operation(options);
+		const abortHandler = () => {
+			operation.stop();
+			reject(options.signal?.reason);
+		};
 
-	operation.attempt(async attemptNumber => {
-		try {
-			resolve(await input(attemptNumber));
-		} catch (error) {
-			if (!(error instanceof Error)) {
-				reject(new TypeError(`Non-error was thrown: "${error}". You should only throw errors.`));
-				return;
-			}
-
-			if (error instanceof AbortError) {
-				operation.stop();
-				reject(error.originalError);
-			} else if (error instanceof TypeError && !isNetworkError(error.message)) {
-				operation.stop();
-				reject(error);
-			} else {
-				decorateErrorWithCounts(error, attemptNumber, options);
-
-				try {
-					await options.onFailedAttempt(error);
-				} catch (error) {
-					reject(error);
-					return;
-				}
-
-				if (!operation.retry(error)) {
-					reject(operation.mainError());
-				}
-			}
+		if (options.signal && !options.signal.aborted) {
+			options.signal.addEventListener('abort', abortHandler, {once: true});
 		}
+
+		const cleanUp = () => {
+			options.signal?.removeEventListener('abort', abortHandler);
+			operation.stop();
+		};
+
+		operation.attempt(async attemptNumber => {
+			try {
+				const result = await input(attemptNumber);
+				cleanUp();
+				resolve(result);
+			} catch (error) {
+				try {
+					if (!(error instanceof Error)) {
+						throw new TypeError(`Non-error was thrown: "${error}". You should only throw errors.`);
+					}
+
+					if (error instanceof AbortError) {
+						throw error.originalError;
+					}
+
+					if (error instanceof TypeError && !isNetworkError(error)) {
+						throw error;
+					}
+
+					decorateErrorWithCounts(error, attemptNumber, options);
+
+					if (!(await options.shouldRetry(error))) {
+						operation.stop();
+						reject(error);
+					}
+
+					await options.onFailedAttempt(error);
+
+					if (!operation.retry(error)) {
+						throw operation.mainError();
+					}
+				} catch (finalError) {
+					decorateErrorWithCounts(finalError, attemptNumber, options);
+					cleanUp();
+					reject(finalError);
+				}
+			}
+		});
 	});
-});
-
-module.exports = pRetry;
-// TODO: remove this in the next major version
-module.exports.default = pRetry;
-
-module.exports.AbortError = AbortError;
+}
